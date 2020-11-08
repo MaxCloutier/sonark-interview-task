@@ -1,10 +1,58 @@
-export const getCostumers = async () => {
-  const response = await fetch("/customers");
-  const body = await response.json();
+import { removeToken } from "./common";
+import axios from './axios'
 
-  if (response.status !== 200) {
-    throw Error(body.message);
+export const getCostumer = async (id) => {
+  try {
+    const response = await axios.get(`/customers/${id}`);
+
+    return response.data
+  } catch ({response}) {
+    handleError(response)
+  }
+};
+
+export const getCostumers = async (filters = '') => {
+  try {
+    const response = await axios.get(`/customers${filters ? `?${filters}` : ''}`);
+
+    return response.data
+  } catch ({response}) {
+    handleError(response)
+  }
+};
+
+export const getCostumersFilters = async () => {
+  try {
+    const response = await axios.get("/customers-filters");
+
+    return response.data
+  } catch ({response}) {
+    handleError(response)
+  }
+};
+
+export const getCostumerOrders = async (id) => {
+  try {
+    const response = await axios.get(`/customers/${id}/orders`);
+
+    return response.data
+  } catch ({response}) {
+    handleError(response)
+  }
+};
+
+async function handleError(response) {
+  if (!response) {
+    return
   }
 
-  return body;
-};
+  const { status } = response
+
+  if (status === 401) {
+    removeToken()
+  }
+
+  if (status !== 200) {
+    return response.data
+  }
+}

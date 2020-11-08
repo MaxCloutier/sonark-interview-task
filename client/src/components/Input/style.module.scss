@@ -1,0 +1,15 @@
+.fieldWrapper {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.field {
+  &:not(.dark) {
+    background: #fff !important;
+    color: #252525 !important;
+  }
+
+  &:focus {
+    box-shadow: 0 0 2px 2px rgb(0, 95, 204) !important;
+  }
+}

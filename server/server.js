@@ -1,80 +1,89 @@
+require('rootpath')();
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 5000;
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const jwt = require('_helpers/jwt');
+const errorHandler = require('_helpers/error-handler');
+const _ = require('lodash');
 const sqlite = require('sqlite');
+const { buildQuery, extractCountries, formatCustomer, formatOrders } = require('./utils');
 
-// console.log that your server is up and running
-app.listen(port, () => console.log(`Server is up and running.`));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
+
+// use JWT auth to secure the api
+app.use(jwt());
+
+// api routes
+app.use('/users', require('./users/users.controller'));
 
 // create a GET route
 app.get('/customers', (req, res) => {
     sqlite.open(`${__dirname}/data/database.sqlite`, { Promise }).then(db => {
-        db.all('SELECT * FROM customers;').then(data => {
+        db.all(`SELECT * FROM customers ${buildQuery(req.query)};`).then(data => {
             res.send({
-                data
+                data: data.map(formatCustomer)
             })
         })
         .catch(e => console.log(e));
     });
 });
 
-app.get('/users', (req, res) => {
+app.get('/customers-filters', (req, res) => {
     sqlite.open(`${__dirname}/data/database.sqlite`, { Promise }).then(db => {
-        db.all('SELECT * FROM users;').then(data => {
+        db.all('SELECT * FROM customers;').then(data => {
             res.send({
-                data
+                data: {
+                    ...extractCountries(data)
+                }
             })
-        });
+        })
+        .catch(e => console.log(e));
     });
 });
 
-app.get('/orders', (req, res) => {
+app.get('/customers/:id', (req, res) => {
     sqlite.open(`${__dirname}/data/database.sqlite`, { Promise }).then(db => {
-        db.all('SELECT * FROM orders o LEFT JOIN orderdetails od ON o.orderNumber = od.orderNumber LEFT JOIN products p on od.productCode = p.productCode;').then(data => {
+        db.get(`SELECT * FROM customers WHERE customerNumber = '${req.params.id}';`).then(data => {
+            if (!data) {
+                res.status(404).send('Not found');
+
+                return;
+            }
+
             res.send({
-                data: formatOrders(data)
+                data: formatCustomer(data)
+            })
+        })
+        .catch(e => console.log(e));
+    });
+});
+
+app.get('/customers/:id/orders', (req, res) => {
+    sqlite.open(`${__dirname}/data/database.sqlite`, { Promise }).then(db => {
+        db.all(`SELECT * FROM orders o LEFT JOIN orderdetails od ON o.orderNumber = od.orderNumber LEFT JOIN products p on od.productCode = p.productCode WHERE o.customerNumber = '${req.params.id}';`).then(data => {
+            if (!data.length) {
+                res.status(404).send('Not found');
+
+                return;
+            }
+
+            res.send({
+                data: _.orderBy(Object.values(formatOrders(data)), ['orderDate'], ['desc'])
             })
         });
     })
     .catch(e => console.log(e));
 });
 
-function formatOrders(data) {
-    return data.reduce((acc, {
-      buyPrice,
-      MSRP,
-      productCode,
-      productDescription,
-      productLine,
-      productName,
-      productScale,
-      productVendor,
-      quantityInStock,
-      quantityOrders,
-      priceEach,
-      orderLineNumber,
-      ...o
-    }) => {
-      if (!acc[o.orderNumber]) {
-        acc[o.orderNumber] = {...o, items: []}
-      }
+// global error handler
+app.use(errorHandler);
 
-      acc[o.orderNumber].items.push({
-        quantityOrders,
-        priceEach,
-        orderLineNumber,
-        product: {
-          buyPrice,
-          MSRP,
-          productCode,
-          productDescription,
-          productLine,
-          productName,
-          productScale,
-          productVendor,
-          quantityInStock
-        }
-      })
-      return acc
-    }, {})
-  }
+// start server
+const port = process.env.NODE_ENV === 'production' ? 80 : 5000;
+const server = app.listen(port, function () {
+    console.log('Server listening on port ' + port);
+});

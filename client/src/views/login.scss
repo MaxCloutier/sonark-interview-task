@@ -1,0 +1,16 @@
+.error {
+  color: #f00;
+  font-size: 14px;
+}
+
+.login-btn {
+  background: rgb(0, 95, 204) !important;
+  border-radius: 3px !important;
+  color: #fff !important;
+  float: right;
+  padding: 5px 10px !important;
+
+  &:focus {
+    box-shadow: 0 0 2px 2px rgb(0, 95, 204) !important;
+  }
+}
