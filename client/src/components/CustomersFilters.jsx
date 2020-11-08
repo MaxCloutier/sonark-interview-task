@@ -10,7 +10,7 @@ const selectCityOption = { label: "Select a City", value: null };
 const Form = styled.form`
   display: flex;
   align-items: center;
-  margin: 0 -5px;
+  margin: 0 -5px 20px;
 
   & > * {
     margin: 0 5px;

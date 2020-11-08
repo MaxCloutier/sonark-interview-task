@@ -11,23 +11,11 @@ const Customers = (props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCostumers()
-      .then((res) => {
-        setLoading(false);
-
-        setCustomers(res.data);
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
     getCostumers(filters)
       .then((res) => {
         setLoading(false);
 
-        setCustomers(res.data);
+        setCustomers(res);
       })
       .catch((err) => {
         setLoading(false);

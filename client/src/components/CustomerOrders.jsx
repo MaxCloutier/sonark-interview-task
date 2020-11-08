@@ -14,7 +14,7 @@ const CustomerOrders = () => {
       .then((res) => {
         setLoading(false);
 
-        setOrders(res.data);
+        setOrders(res);
       })
       .catch((err) => {
         setLoading(false);

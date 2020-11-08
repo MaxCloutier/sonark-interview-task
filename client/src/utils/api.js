@@ -7,7 +7,7 @@ export const getCostumer = async (id) => {
 
     return response.data
   } catch ({response}) {
-    handleError(response)
+    return handleError(response)
   }
 };
 
@@ -17,7 +17,7 @@ export const getCostumers = async (filters = '') => {
 
     return response.data
   } catch ({response}) {
-    handleError(response)
+    return handleError(response)
   }
 };
 
@@ -27,7 +27,7 @@ export const getCostumersFilters = async () => {
 
     return response.data
   } catch ({response}) {
-    handleError(response)
+    return handleError(response)
   }
 };
 
@@ -37,7 +37,7 @@ export const getCostumerOrders = async (id) => {
 
     return response.data
   } catch ({response}) {
-    handleError(response)
+    return handleError(response)
   }
 };
 
@@ -53,6 +53,6 @@ async function handleError(response) {
   }
 
   if (status !== 200) {
-    return response.data
+    throw response.data
   }
 }

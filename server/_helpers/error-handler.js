@@ -3,6 +3,11 @@ module.exports = errorHandler;
 function errorHandler(err, req, res, next) {
     if (typeof (err) === 'string') {
         // custom application error
+
+        if (err === 'NotFound') {
+            return res.status(404).json({ message: 'Not found' });
+        }
+
         return res.status(400).json({ message: err });
     }
 
