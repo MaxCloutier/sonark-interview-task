@@ -43,7 +43,7 @@ const CustomersFilters = ({ onApplyFilters }) => {
     getCostumersFilters()
       .then((res) => {
         setLoading(false);
-        setFilters(res.data);
+        setFilters(res);
       })
       .catch((err) => {
         setLoading(false);

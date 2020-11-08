@@ -23,7 +23,7 @@ export const getCostumers = async (filters = '') => {
 
 export const getCostumersFilters = async () => {
   try {
-    const response = await axios.get("/customers-filters");
+    const response = await axios.get("/filters/customers");
 
     return response.data
   } catch ({response}) {

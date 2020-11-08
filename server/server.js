@@ -18,20 +18,7 @@ app.use(jwt());
 // api routes
 app.use('/users', require('./users/users.controller'));
 app.use('/customers', require('./customers/customers.controller'));
-
-// create a GET route
-app.get('/customers-filters', (req, res) => {
-    sqlite.open(`${__dirname}/data/database.sqlite`, { Promise }).then(db => {
-        db.all('SELECT * FROM customers;').then(data => {
-            res.send({
-                data: {
-                    ...extractCountries(data)
-                }
-            })
-        })
-        .catch(e => console.log(e));
-    });
-});
+app.use('/filters', require('./filters/filters.controller'));
 
 // global error handler
 app.use(errorHandler);
